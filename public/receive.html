@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receive File</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Download Your File</h1>
+        <input type="password" id="passwordInput" placeholder="Enter password">
+        <button id="downloadBtn">Download File</button>
+        <p id="message"></p>
+    </div>
+
+    <script>
+        document.getElementById('downloadBtn').addEventListener('click', async function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const correctPassword = urlParams.get('pass');
+            const enteredPassword = document.getElementById('passwordInput').value;
+
+            if (enteredPassword === correctPassword) {
+                const fileName = urlParams.get('file');
+                const response = await fetch(`/download?file=${encodeURIComponent(fileName)}&pass=${correctPassword}`);
+
+                if (response.status === 200) {
+                    const blob = await response.blob();
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = fileName;
+                    link.click();
+
+                    document.getElementById('message').textContent = "File downloaded successfully!";
+                } else {
+                    document.getElementById('message').textContent = "Error: Could not download the file.";
+                }
+            } else {
+                document.getElementById('message').textContent = "Incorrect password!";
+            }
+        });
+    </script>
+</body>
+</html>

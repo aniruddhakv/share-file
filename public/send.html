@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send File</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Upload Your File</h1>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <input type="file" id="fileInput" name="file" required>
+            <input type="number" id="downloadLimit" placeholder="Max Downloads" name="limit" min="1" required>
+            <button type="submit" id="generateLinkBtn">Generate Link</button>
+        </form>
+        <p id="generatedLink"></p>
+        <p id="generatedPassword"></p>
+    </div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const password = Math.random().toString(36).slice(-8); // Generate a random password
+            formData.append('password', password);
+
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                const link = `${window.location.origin}/receive.html?file=${encodeURIComponent(result.fileName)}&limit=${result.limit}&pass=${password}`;
+                document.getElementById('generatedLink').textContent = `Download Link: ${link}`;
+                document.getElementById('generatedPassword').textContent = `Password: ${password}`;
+            } else {
+                alert('Error uploading the file.');
+            }
+        });
+    </script>
+</body>
+</html>
